@@ -5,9 +5,9 @@ import dict.KeyError;
 import dict.Dictionary;
 import static spark.Spark.*;
 
+import printer.PrintJob;
 import printer.ZebraLabelPrinter;
 import org.json.simple.JSONObject;
-import printer.Base64ContentPrinter;
 import org.json.simple.parser.JSONParser;
 import com.zebra.sdk.comm.ConnectionException;
 import com.zebra.sdk.printer.discovery.UsbDiscoverer;
@@ -102,9 +102,9 @@ public class Server {
                 }
                 String printerAddress = (String) json.get("printer");
                 String base64content = (String) json.get("printerCode");
-                Base64ContentPrinter printThread = new Base64ContentPrinter((ZebraLabelPrinter) this.printers.get(printerAddress), base64content);
-                this.printThreads.add(printThread);
-                printThread.start();
+                PrintJob printJob = new PrintJob((ZebraLabelPrinter) this.printers.get(printerAddress), base64content, "base64");
+                this.printThreads.add(printJob);
+                printJob.start();
                 return makeJSONResponse("success", "Successfully queued label code");
             });
         });
