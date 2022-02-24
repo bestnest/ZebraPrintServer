@@ -125,7 +125,6 @@ public class Server {
                 }
                 String printerAddress = (String) json.get("printer");
                 String base64Image = (String) json.get("imageContent");
-//                String imageFormat = (String) json.get("imageFormat");
                 PrintJob printJob = new PrintJob((ZebraLabelPrinter) this.printers.get(printerAddress), base64Image, "image");
                 this.printThreads.add(printJob);
                 printJob.start();
