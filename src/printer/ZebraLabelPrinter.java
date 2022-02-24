@@ -53,7 +53,7 @@ public class ZebraLabelPrinter {
         if (imageBytes[0] == 0x25 && imageBytes[1] == 0x50 && imageBytes[2] == 0x44 && imageBytes[3] == 0x46 && imageBytes[4] == 0x2D) {
             // This is a PDF, we need to convert it
             UUID fileID = UUID.randomUUID();
-            String pdfFilePath = "/home/nbroyles/Intellij-IdeaProjects/LabelPrintServer/target/images/" + fileID + ".pdf";
+            String pdfFilePath = "target/images/" + fileID + ".pdf";
             File pdfFile = new File(pdfFilePath);
             Files.write(pdfFile.toPath(), imageBytes);
             ByteArrayOutputStream convertedPNG = generateImageFromPDF(pdfFile, "PNG");
