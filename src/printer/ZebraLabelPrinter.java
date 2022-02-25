@@ -22,7 +22,7 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 
 
-public class ZebraLabelPrinter {
+public class ZebraLabelPrinter implements LabelPrinter {
 
     private final Connection connection;
 
