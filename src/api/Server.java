@@ -3,18 +3,16 @@ package api;
 
 import dict.KeyError;
 import dict.Dictionary;
-import static spark.Spark.*;
-
 import printer.PrintJob;
+import java.util.ArrayList;
 import printer.ZebraLabelPrinter;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import com.zebra.sdk.comm.ConnectionException;
-import com.zebra.sdk.printer.discovery.UsbDiscoverer;
-import com.zebra.sdk.printer.discovery.ZebraPrinterFilter;
-import com.zebra.sdk.printer.discovery.DiscoveredUsbPrinter;
 
-import java.util.ArrayList;
+import static spark.Spark.*;
+import com.zebra.sdk.printer.discovery.*;
+
 
 
 public class Server {
@@ -22,16 +20,18 @@ public class Server {
     private int port = 9100;
     private final Dictionary printerIndex = new Dictionary();
     private final Dictionary printers = new Dictionary();
-    private final ArrayList<Thread> printThreads = new ArrayList<Thread>();
+    private final ArrayList<PrintJob> printThreads = new ArrayList<>();
 
     // Constructors
-    public Server() throws KeyError, ConnectionException {
+    public Server() throws ConnectionException, DiscoveryException {
         this.discoverLocalPrinters();
+        this.discoverNetworkPrinters();
     }
 
-    public Server(int port) throws KeyError, ConnectionException {
+    public Server(int port) throws ConnectionException, DiscoveryException {
         this.port = port;
         this.discoverLocalPrinters();
+        this.discoverNetworkPrinters();
     }
 
     /***
@@ -108,7 +108,7 @@ public class Server {
                 }
                 String printerAddress = (String) json.get("printer");
                 String base64content = (String) json.get("printerCode");
-                PrintJob printJob = new PrintJob((ZebraLabelPrinter) this.printers.get(printerAddress), base64content, "base64");
+                PrintJob printJob = new PrintJob((ZebraLabelPrinter) this.printers.get(printerAddress, "->"), base64content, "base64");
                 this.printThreads.add(printJob);
                 printJob.start();
                 return makeJSONResponse("success", "Successfully queued label code");
@@ -125,7 +125,7 @@ public class Server {
                 }
                 String printerAddress = (String) json.get("printer");
                 String base64Image = (String) json.get("imageContent");
-                PrintJob printJob = new PrintJob((ZebraLabelPrinter) this.printers.get(printerAddress), base64Image, "image");
+                PrintJob printJob = new PrintJob((ZebraLabelPrinter) this.printers.get(printerAddress, "->"), base64Image, "image");
                 this.printThreads.add(printJob);
                 printJob.start();
                 return makeJSONResponse("success", "Successfully queued image to print");
@@ -141,21 +141,71 @@ public class Server {
         stop();
     }
 
-    private void discoverLocalPrinters() throws ConnectionException, KeyError {
+    /***
+     * Discover Zebra printers connected to the server via USB
+     * @throws ConnectionException If there is an error discovering printers
+     */
+    private void discoverLocalPrinters() throws ConnectionException {
         for (DiscoveredUsbPrinter printer : UsbDiscoverer.getZebraUsbPrinters(new ZebraPrinterFilter())) {
             Dictionary printerInfo = new Dictionary();
             String name = printer.address.split("#model_")[1];
-            printerInfo.set("address", printer.address);
-            printerInfo.set("name", name);
-            this.printerIndex.set(printer.address, printerInfo);
-            this.printers.set(printer.address, new ZebraLabelPrinter(printer.getConnection()));
+            try {
+                printerInfo.set("address", printer.address);
+                printerInfo.set("name", name);
+                printerInfo.set("type", "local");
+                this.printerIndex.set(printer.address, printerInfo);
+                this.printers.set(printer.address, new ZebraLabelPrinter(printer.getConnection()));
+            } catch (KeyError ignored) {
+                // Because in this case you will NEVER get a KeyError
+            }
+
         }
     }
 
-    private String makeJSONResponse(String message, String details) throws KeyError {
+    /***
+     * Discover network label printers available to the server
+     * @throws DiscoveryException If something goes wrong when discovering network printers.
+     */
+    private void discoverNetworkPrinters() throws DiscoveryException {
+
+        DiscoveryHandler networkDiscoveryHandler = new DiscoveryHandler() {
+            private int discoveredPrinters = 0;
+
+            public void foundPrinter(DiscoveredPrinter printer) {
+                Dictionary printerInfo = new Dictionary();
+                try {
+                    printerInfo.set("address", printer.address);
+                    printerInfo.set("name", "Network Printer");
+                    printerInfo.set("type", "network");
+                    // We need to use a different separator than "." because IP addresses contain dots.
+                    printerIndex.set(printer.address, printerInfo, "->");
+                    printers.set(printer.address, new ZebraLabelPrinter(printer.getConnection()), "->");
+                } catch (KeyError ignored) {} // We should not get a KeyError from this operation
+
+                discoveredPrinters++;
+            }
+
+            public void discoveryFinished() {
+                System.out.println("Discovered " + discoveredPrinters + " network printers.");
+            }
+
+            public void discoveryError(String message) {
+                System.err.println("An error occurred during network printer discovery : " + message);
+            }
+        };
+
+        NetworkDiscoverer.findPrinters(networkDiscoveryHandler);
+
+    }
+
+    private String makeJSONResponse(String message, String details) {
         Dictionary response = new Dictionary();
-        response.set("message", message);
-        response.set("details", details);
+        try {
+            response.set("message", message);
+            response.set("details", details);
+        } catch (KeyError ignored) {
+            // This won't happen in this method, currently
+        }
         return response.toJSON();
     }
 }
