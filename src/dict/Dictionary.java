@@ -172,7 +172,7 @@ public class Dictionary {
 	
 	/***
 	 * Pops an item from the dictionary and returns the value
-	 * @param selector
+	 * @param selector the path of the item to pop
 	 * @return the value that was at the selector
 	 * @throws KeyError if the selector does not exist
 	 */
@@ -241,7 +241,7 @@ public class Dictionary {
 			if (this.values.get(i) == null) {
 				json.append("null");
 			} else {
-				if (this.values.get(i).getClass().getName() == "java.lang.String") {
+				if (this.values.get(i).getClass().getName().equals("java.lang.String")) {
 					json.append("\"").append(((String) this.values.get(i)).replaceAll("\"", Matcher.quoteReplacement("\\\\\""))).append("\"");
 				} else {
 					json.append(this.values.get(i).toString());
