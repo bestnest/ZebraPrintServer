@@ -55,7 +55,7 @@ public class ZebraLabelPrinter implements LabelPrinter {
             String pdfFilePath = "target/images/" + fileID + ".pdf";
             File pdfFile = new File(pdfFilePath);
             Files.write(pdfFile.toPath(), imageBytes);
-            ByteArrayOutputStream convertedPNG = generateImageFromPDF(pdfFile, "PNG");
+            ByteArrayOutputStream convertedPNG = generatePNGFromPDF(pdfFile);
             rawImageData = new ByteArrayInputStream(convertedPNG.toByteArray());
         } else {
             rawImageData = new ByteArrayInputStream(imageBytes);
@@ -73,13 +73,13 @@ public class ZebraLabelPrinter implements LabelPrinter {
 
     }
 
-    private ByteArrayOutputStream generateImageFromPDF(File pdfFile, String extension) throws IOException {
+    private ByteArrayOutputStream generatePNGFromPDF(File pdfFile) throws IOException {
         PDDocument document = PDDocument.load(pdfFile);
         PDFRenderer pdfRenderer = new PDFRenderer(document);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300, ImageType.GRAY);
-        ImageIOUtil.writeImage(bim, extension, out);
+        ImageIOUtil.writeImage(bim, "PNG", out);
 
         document.close();
         return out;
