@@ -10,7 +10,7 @@ public class PrintJob extends Thread {
 
     private final String mode;
     private final String printCode;
-    private final ZebraLabelPrinter printer;
+    private final LabelPrinter printer;
 
     /***
      * Creates a PrintJob with a specified mode. The available modes are "base64", "raw", and "image".
@@ -21,7 +21,7 @@ public class PrintJob extends Thread {
      * @param printData the base64 encoded or plain text printer code to print
      * @param mode The mode. Options are "base64", "raw", and "image"
      */
-    public PrintJob(ZebraLabelPrinter printer, String printData, String mode) {
+    public PrintJob(LabelPrinter printer, String printData, String mode) {
         this.mode = mode;
         this.printer = printer;
         this.printCode = printData;
