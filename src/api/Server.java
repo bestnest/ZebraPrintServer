@@ -26,12 +26,12 @@ public class Server {
 
     // Constructors
     public Server() throws KeyError, ConnectionException {
-        this.loadPrinters();
+        this.discoverLocalPrinters();
     }
 
     public Server(int port) throws KeyError, ConnectionException {
         this.port = port;
-        this.loadPrinters();
+        this.discoverLocalPrinters();
     }
 
     /***
@@ -71,7 +71,7 @@ public class Server {
 
         // Get the list of available printers
         get("/printers.json", (request, response) -> {
-            this.loadPrinters();
+            this.discoverLocalPrinters();
             response.type("application/json");
             response.body(this.printerIndex.toJSON());
             return response.body();
@@ -141,7 +141,7 @@ public class Server {
         stop();
     }
 
-    private void loadPrinters() throws ConnectionException, KeyError {
+    private void discoverLocalPrinters() throws ConnectionException, KeyError {
         for (DiscoveredUsbPrinter printer : UsbDiscoverer.getZebraUsbPrinters(new ZebraPrinterFilter())) {
             Dictionary printerInfo = new Dictionary();
             String name = printer.address.split("#model_")[1];
