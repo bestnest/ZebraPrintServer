@@ -233,28 +233,28 @@ public class Dictionary {
 	
 	
 	public String toJSON() {
-		String json = "{";
+		StringBuilder json = new StringBuilder("{");
 		for (int i = 0; i < this.keys.size(); i++) {
-			json += "\"" + this.keys.get(i) + "\"" + ": ";
+			json.append("\"").append(this.keys.get(i)).append("\"").append(": ");
 			
 			// Account for NULL objects
 			if (this.values.get(i) == null) {
-				json += "null";
+				json.append("null");
 			} else {
 				if (this.values.get(i).getClass().getName() == "java.lang.String") {
-					json += "\"" + new String((String) this.values.get(i)).replaceAll("\"", Matcher.quoteReplacement("\\\\\"")) + "\"";
+					json.append("\"").append(((String) this.values.get(i)).replaceAll("\"", Matcher.quoteReplacement("\\\\\""))).append("\"");
 				} else {
-					json += this.values.get(i).toString();
+					json.append(this.values.get(i).toString());
 				}
 			}
 			
 			// Check to see if we should put a comma, basically if there is one after this.
 			if (i < this.keys.size() - 1) {
-				json += ", ";
+				json.append(", ");
 			}
 		}
-		json += "}";
-		return json;
+		json.append("}");
+		return json.toString();
 	}
 	
 	/***
