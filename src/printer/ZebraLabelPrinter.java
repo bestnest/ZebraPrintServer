@@ -1,25 +1,24 @@
 package printer;
 
 
-import java.awt.image.BufferedImage;
+// Import time, baby!
 import java.io.*;
-
+import java.util.UUID;
+import java.nio.file.Files;
+import java.awt.image.BufferedImage;
 import com.zebra.sdk.comm.Connection;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.UUID;
-
 import com.zebra.sdk.graphics.ZebraImageI;
 import com.zebra.sdk.printer.ZebraPrinter;
-import com.zebra.sdk.comm.ConnectionException;
-import org.apache.commons.codec.binary.Base64;
-import com.zebra.sdk.graphics.ZebraImageFactory;
-import com.zebra.sdk.printer.ZebraPrinterFactory;
-import com.zebra.sdk.printer.ZebraPrinterLanguageUnknownException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
+import org.apache.commons.codec.binary.Base64;
+import com.zebra.sdk.comm.ConnectionException;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import com.zebra.sdk.graphics.ZebraImageFactory;
+import com.zebra.sdk.printer.ZebraPrinterFactory;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
+import com.zebra.sdk.printer.ZebraPrinterLanguageUnknownException;
 
 
 public class ZebraLabelPrinter implements LabelPrinter {
