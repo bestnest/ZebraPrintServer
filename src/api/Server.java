@@ -1,10 +1,14 @@
 package api;
 
 
+import com.zebra.sdk.comm.Connection;
+import com.zebra.sdk.printer.*;
 import dict.KeyError;
 import dict.Dictionary;
 import printer.PrintJob;
 import java.util.ArrayList;
+import java.util.Map;
+
 import printer.LabelPrinter;
 import printer.ZebraLabelPrinter;
 import org.json.simple.JSONObject;
@@ -177,13 +181,15 @@ public class Server {
             public void foundPrinter(DiscoveredPrinter printer) {
                 Dictionary printerInfo = new Dictionary();
                 try {
+                    Map<String, String> printerProperties = printer.getDiscoveryDataMap();
                     printerInfo.set("address", printer.address);
-                    printerInfo.set("name", "Network Printer");
+                    printerInfo.set("name", printerProperties.getOrDefault("SYSTEM_NAME", "Network") + " (" + printer.address + ")");
                     printerInfo.set("type", "network");
                     // We need to use a different separator than "." because IP addresses contain dots.
                     printerIndex.set(printer.address, printerInfo, "->");
                     printers.set(printer.address, new ZebraLabelPrinter(printer.getConnection()), "->");
                 } catch (KeyError ignored) {} // We should not get a KeyError from this operation
+
 
                 discoveredPrinters++;
             }
