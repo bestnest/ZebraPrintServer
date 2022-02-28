@@ -1,14 +1,11 @@
 package api;
 
 
-import com.zebra.sdk.comm.Connection;
-import com.zebra.sdk.printer.*;
+import java.util.Map;
 import dict.KeyError;
 import dict.Dictionary;
 import printer.PrintJob;
 import java.util.ArrayList;
-import java.util.Map;
-
 import printer.LabelPrinter;
 import printer.ZebraLabelPrinter;
 import org.json.simple.JSONObject;
