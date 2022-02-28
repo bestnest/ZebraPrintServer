@@ -5,6 +5,7 @@ import dict.KeyError;
 import dict.Dictionary;
 import printer.PrintJob;
 import java.util.ArrayList;
+import printer.LabelPrinter;
 import printer.ZebraLabelPrinter;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -20,7 +21,7 @@ public class Server {
     private int port = 9100;
     private final Dictionary printerIndex = new Dictionary();
     private final Dictionary printers = new Dictionary();
-    private final ArrayList<PrintJob> printThreads = new ArrayList<>();
+    private final ArrayList<PrintJob> printJobs = new ArrayList<>();
 
     // Constructors
     public Server() throws ConnectionException, DiscoveryException {
@@ -108,8 +109,8 @@ public class Server {
                 }
                 String printerAddress = (String) json.get("printer");
                 String base64content = (String) json.get("printerCode");
-                PrintJob printJob = new PrintJob((ZebraLabelPrinter) this.printers.get(printerAddress, "->"), base64content, "base64");
-                this.printThreads.add(printJob);
+                PrintJob printJob = new PrintJob((LabelPrinter) this.printers.get(printerAddress, "->"), base64content, "base64");
+                this.printJobs.add(printJob);
                 printJob.start();
                 return makeJSONResponse("success", "Successfully queued label code");
             });
@@ -126,7 +127,7 @@ public class Server {
                 String printerAddress = (String) json.get("printer");
                 String base64Image = (String) json.get("imageContent");
                 PrintJob printJob = new PrintJob((ZebraLabelPrinter) this.printers.get(printerAddress, "->"), base64Image, "image");
-                this.printThreads.add(printJob);
+                this.printJobs.add(printJob);
                 printJob.start();
                 return makeJSONResponse("success", "Successfully queued image to print");
             });
@@ -137,7 +138,11 @@ public class Server {
     /***
      * Stops the server from running
      */
-    public void stopServer() {
+    public void stopServer() throws InterruptedException {
+        // Check if all the print jobs are finished printing
+        for (PrintJob job : this.printJobs) {
+            job.join();
+        }
         stop();
     }
 

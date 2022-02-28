@@ -7,7 +7,6 @@ import java.util.UUID;
 import java.nio.file.Files;
 import java.awt.image.BufferedImage;
 import com.zebra.sdk.comm.Connection;
-import java.nio.charset.StandardCharsets;
 import com.zebra.sdk.graphics.ZebraImageI;
 import com.zebra.sdk.printer.ZebraPrinter;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -21,28 +20,12 @@ import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import com.zebra.sdk.printer.ZebraPrinterLanguageUnknownException;
 
 
-public class ZebraLabelPrinter implements LabelPrinter {
-
-    private final Connection connection;
+public class ZebraLabelPrinter extends LabelPrinter {
 
     public ZebraLabelPrinter(Connection printerConnection) {
-        this.connection = printerConnection;
+        super(printerConnection);
     }
 
-    public void print(byte[] data) throws ConnectionException {
-        this.connection.open();
-        this.connection.write(data);
-        this.connection.close();
-    }
-
-    public void print(String data) throws ConnectionException {
-        this.print(data.getBytes(StandardCharsets.UTF_8));
-    }
-
-    public void printBase64Content(String base64encoded) throws ConnectionException {
-        byte[] decoded = Base64.decodeBase64(base64encoded);
-        this.print(decoded);
-    }
 
     public void printImage(String base64ImageData) throws ZebraPrinterLanguageUnknownException, ConnectionException, IOException {
         InputStream rawImageData;
