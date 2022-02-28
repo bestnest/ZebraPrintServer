@@ -80,10 +80,7 @@ public class Server {
 
         // test printing something
         path("/print", () -> {
-            after("/*", (req, res) -> {
-                System.out.println("Received call to print from " + req.ip());
-                res.header("content-type", "application/json");
-            });
+            after("/*", (req, res) -> res.header("content-type", "application/json"));
 
             // test path
             post("/test", (request, response) -> {
@@ -100,6 +97,7 @@ public class Server {
 
             // base64 content with no splitting
             post("/base64LabelCode", (request, response) -> {
+                System.out.println("Received call to print base64 printer code from " + request.ip());
                 JSONParser parser = new JSONParser();
                 JSONObject json;
                 try {
