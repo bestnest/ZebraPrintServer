@@ -9,6 +9,7 @@ import com.zebra.sdk.printer.ZebraPrinterLanguageUnknownException;
 public class PrintJob extends Thread {
 
     private final String mode;
+    private final String name;
     private final String printCode;
     private final LabelPrinter printer;
 
@@ -21,8 +22,9 @@ public class PrintJob extends Thread {
      * @param printData the base64 encoded or plain text printer code to print
      * @param mode The mode. Options are "base64", "raw", and "image"
      */
-    public PrintJob(LabelPrinter printer, String printData, String mode) {
+    public PrintJob(LabelPrinter printer, String printData, String mode, String name) {
         this.mode = mode;
+        this.name = name;
         this.printer = printer;
         this.printCode = printData;
     }
@@ -31,6 +33,7 @@ public class PrintJob extends Thread {
     public void run() {
         synchronized (this.printer) {
             try {
+                System.out.println(this.name + " job is printing now.");
                 if (Objects.equals(this.mode, "base64")) {
                     this.printer.printBase64Content(this.printCode);
                 } else if (Objects.equals(this.mode, "raw")) {
