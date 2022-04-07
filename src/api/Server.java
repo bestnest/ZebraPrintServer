@@ -154,15 +154,16 @@ public class Server {
             Dictionary printerInfo = new Dictionary();
             String name = printer.address.split("#model_")[1];
             try {
-                printerInfo.set("address", printer.address);
-                printerInfo.set("name", name);
-                printerInfo.set("type", "local");
-                this.printerIndex.set(printer.address, printerInfo);
-                this.printers.set(printer.address, new ZebraLabelPrinter(printer.getConnection()));
+                if (printerIndex.get(printer.address, "->") == null) {
+                    printerInfo.set("address", printer.address);
+                    printerInfo.set("name", name);
+                    printerInfo.set("type", "local");
+                    this.printerIndex.set(printer.address, printerInfo);
+                    this.printers.set(printer.address, new ZebraLabelPrinter(printer.getConnection()));
+                }
             } catch (KeyError ignored) {
                 // Because in this case you will NEVER get a KeyError
             }
-
         }
     }
 
@@ -179,12 +180,15 @@ public class Server {
                 Dictionary printerInfo = new Dictionary();
                 try {
                     Map<String, String> printerProperties = printer.getDiscoveryDataMap();
-                    printerInfo.set("address", printer.address);
-                    printerInfo.set("name", printerProperties.getOrDefault("SYSTEM_NAME", "Network") + " (" + printer.address + ")");
-                    printerInfo.set("type", "network");
-                    // We need to use a different separator than "." because IP addresses contain dots.
-                    printerIndex.set(printer.address, printerInfo, "->");
-                    printers.set(printer.address, new ZebraLabelPrinter(new TcpConnection(printer.address, TcpConnection.DEFAULT_ZPL_TCP_PORT)), "->");
+                    if (printerIndex.get(printer.address, "->") == null) {
+                        // This printer was not here before, so add it
+                        printerInfo.set("address", printer.address);
+                        printerInfo.set("name", printerProperties.getOrDefault("SYSTEM_NAME", "Network") + " (" + printer.address + ")");
+                        printerInfo.set("type", "network");
+                        // We need to use a different separator than "." because IP addresses contain dots.
+                        printerIndex.set(printer.address, printerInfo, "->");
+                        printers.set(printer.address, new ZebraLabelPrinter(new TcpConnection(printer.address, TcpConnection.DEFAULT_ZPL_TCP_PORT)), "->");
+                    }
                 } catch (KeyError ignored) {} // We should not get a KeyError from this operation
 
                 discoveredPrinters++;
