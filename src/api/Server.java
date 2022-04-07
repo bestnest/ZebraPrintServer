@@ -150,6 +150,7 @@ public class Server {
      * @throws ConnectionException If there is an error discovering printers
      */
     private void discoverLocalPrinters() throws ConnectionException {
+        int localPrinterCount = 0;
         for (DiscoveredUsbPrinter printer : UsbDiscoverer.getZebraUsbPrinters(new ZebraPrinterFilter())) {
             Dictionary printerInfo = new Dictionary();
             String name = printer.address.split("#model_")[1];
@@ -164,7 +165,9 @@ public class Server {
             } catch (KeyError ignored) {
                 // Because in this case you will NEVER get a KeyError
             }
+            localPrinterCount++;
         }
+        System.out.println("Discovered " + localPrinterCount + " USB printers");
     }
 
     /***
