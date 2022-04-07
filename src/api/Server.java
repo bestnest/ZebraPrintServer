@@ -77,6 +77,7 @@ public class Server {
         // Get the list of available printers
         get("/printers.json", (request, response) -> {
             this.discoverLocalPrinters();
+            this.discoverNetworkPrinters();
             response.type("application/json");
             response.body(this.printerIndex.toJSON());
             return response.body();
