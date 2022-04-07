@@ -5,8 +5,8 @@ import java.io.IOException;
 import com.zebra.sdk.comm.Connection;
 import java.nio.charset.StandardCharsets;
 import com.zebra.sdk.comm.ConnectionException;
-import com.zebra.sdk.printer.ZebraPrinterLanguageUnknownException;
 import org.apache.commons.codec.binary.Base64;
+import com.zebra.sdk.printer.ZebraPrinterLanguageUnknownException;
 
 
 public abstract class LabelPrinter {

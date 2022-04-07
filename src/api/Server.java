@@ -10,6 +10,7 @@ import printer.PrintJob;
 import printer.LabelPrinter;
 import printer.ZebraLabelPrinter;
 import org.json.simple.JSONObject;
+import com.zebra.sdk.comm.TcpConnection;
 import org.json.simple.parser.JSONParser;
 import com.zebra.sdk.comm.ConnectionException;
 
@@ -182,9 +183,9 @@ public class Server {
                     printerInfo.set("type", "network");
                     // We need to use a different separator than "." because IP addresses contain dots.
                     printerIndex.set(printer.address, printerInfo, "->");
-                    printers.set(printer.address, new ZebraLabelPrinter(printer.getConnection()), "->");
+                    System.out.println(printer.getConnection().getClass());
+                    printers.set(printer.address, new ZebraLabelPrinter(new TcpConnection(printer.address, TcpConnection.DEFAULT_ZPL_TCP_PORT)), "->");
                 } catch (KeyError ignored) {} // We should not get a KeyError from this operation
-
 
                 discoveredPrinters++;
             }
