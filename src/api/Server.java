@@ -122,6 +122,7 @@ public class Server {
                 // Start the print job
                 PrintJob printJob = new PrintJob((LabelPrinter) this.printers.get(printerAddress, "->"), base64content, "base64", printJobName);
                 this.printQueue.add(printJob);
+
                 return makeJSONResponse("success", "Successfully queued label code");
             });
 
