@@ -6,7 +6,6 @@ import dict.KeyError;
 import dict.Dictionary;
 import java.util.Queue;
 import printer.PrintJob;
-
 import printer.LabelPrinter;
 import printer.ZebraLabelPrinter;
 import org.json.simple.JSONObject;
@@ -119,7 +118,7 @@ public class Server {
 
                 System.out.println("Received a print request from " + request.ip() + " for " + printJobName);
 
-                // Start the print job
+                // add the print job to the queue
                 PrintJob printJob = new PrintJob((LabelPrinter) this.printers.get(printerAddress, "->"), base64content, "base64", printJobName);
                 this.printQueue.add(printJob);
 

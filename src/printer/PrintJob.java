@@ -6,7 +6,7 @@ import com.zebra.sdk.comm.ConnectionException;
 import com.zebra.sdk.printer.ZebraPrinterLanguageUnknownException;
 
 
-public class PrintJob extends Thread {
+public class PrintJob {
 
     private final String mode;
     private final String name;
@@ -29,21 +29,19 @@ public class PrintJob extends Thread {
         this.printCode = printData;
     }
 
-    @Override
-    public void run() {
-        synchronized (this.printer) {
-            try {
-                System.out.println(this.name + " job is printing now.");
-                if (Objects.equals(this.mode, "base64")) {
-                    this.printer.printBase64Content(this.printCode);
-                } else if (Objects.equals(this.mode, "raw")) {
-                    this.printer.print(this.printCode);
-                } else if (Objects.equals(this.mode, "image")) {
-                    this.printer.printImage(this.printCode);
-                }
-            } catch (ConnectionException | ZebraPrinterLanguageUnknownException | IOException e) {
-                e.printStackTrace();
+    public void doittoit() {
+        try {
+            System.out.println(this.name + " job is printing now.");
+            if (Objects.equals(this.mode, "base64")) {
+                this.printer.printBase64Content(this.printCode);
+            } else if (Objects.equals(this.mode, "raw")) {
+                this.printer.print(this.printCode);
+            } else if (Objects.equals(this.mode, "image")) {
+                this.printer.printImage(this.printCode);
             }
+        } catch (ConnectionException | ZebraPrinterLanguageUnknownException | IOException e) {
+            e.printStackTrace();
         }
     }
+
 }
