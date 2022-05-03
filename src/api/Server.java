@@ -5,8 +5,8 @@ import java.util.Map;
 import dict.KeyError;
 import dict.Dictionary;
 import java.util.Queue;
-import java.util.concurrent.locks.ReentrantLock;
 
+import log.Logger;
 import printer.PrintJob;
 import printer.LabelPrinter;
 import printer.ZebraLabelPrinter;
@@ -14,6 +14,7 @@ import org.json.simple.JSONObject;
 import com.zebra.sdk.comm.TcpConnection;
 import org.json.simple.parser.JSONParser;
 import com.zebra.sdk.comm.ConnectionException;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static spark.Spark.*;
 import com.zebra.sdk.printer.discovery.*;
@@ -121,7 +122,7 @@ public class Server {
                 String base64content = (String) json.get("printerCode");
                 String printJobName = (String) json.get("jobName");
 
-                System.out.println("Received a print request from " + request.ip() + " for " + printJobName);
+                Logger.log("Received a print request from " + request.ip() + " for " + printJobName);
 
                 // add the print job to the queue
                 PrintJob printJob = new PrintJob((LabelPrinter) this.printers.get(printerAddress, "->"), base64content, "base64", printJobName);
@@ -174,7 +175,7 @@ public class Server {
             }
             localPrinterCount++;
         }
-        System.out.println("Discovered " + localPrinterCount + " USB printers");
+        Logger.log("Discovered " + localPrinterCount + " USB printers");
     }
 
     /***
@@ -205,7 +206,7 @@ public class Server {
             }
 
             public void discoveryFinished() {
-                System.out.println("Discovered " + discoveredPrinters + " network printers.");
+                Logger.log("Discovered " + discoveredPrinters + " network printers.");
             }
 
             public void discoveryError(String message) {
