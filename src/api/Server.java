@@ -5,6 +5,8 @@ import java.util.Map;
 import dict.KeyError;
 import dict.Dictionary;
 import java.util.Queue;
+import java.util.concurrent.locks.ReentrantLock;
+
 import printer.PrintJob;
 import printer.LabelPrinter;
 import printer.ZebraLabelPrinter;
@@ -20,22 +22,25 @@ import com.zebra.sdk.printer.discovery.*;
 public class Server {
 
     private int port = 9100;
+    private final ReentrantLock queueLock;
     private final Dictionary printerIndex = new Dictionary();
     private final Dictionary printers = new Dictionary();
     public Queue<PrintJob> printQueue;
 
     // Constructors
-    public Server(Queue<PrintJob> printQueue) throws ConnectionException, DiscoveryException {
+    public Server(ReentrantLock queueLock, Queue<PrintJob> printQueue) throws ConnectionException, DiscoveryException {
+        this.queueLock = queueLock;
         this.discoverLocalPrinters();
         this.discoverNetworkPrinters();
         this.printQueue = printQueue;
     }
 
-    public Server(Queue<PrintJob> printQueue, int port) throws ConnectionException, DiscoveryException {
+    public Server(Queue<PrintJob> printQueue, int port, ReentrantLock lock) throws ConnectionException, DiscoveryException {
         this.port = port;
         this.discoverLocalPrinters();
         this.discoverNetworkPrinters();
         this.printQueue = printQueue;
+        this.queueLock = lock;
     }
 
     /***
@@ -120,7 +125,9 @@ public class Server {
 
                 // add the print job to the queue
                 PrintJob printJob = new PrintJob((LabelPrinter) this.printers.get(printerAddress, "->"), base64content, "base64", printJobName);
+                this.queueLock.lock();
                 this.printQueue.add(printJob);
+                this.queueLock.unlock();
 
                 return makeJSONResponse("success", "Successfully queued label code");
             });
